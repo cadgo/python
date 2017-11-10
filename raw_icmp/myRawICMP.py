@@ -1,7 +1,7 @@
 import random
 import struct
 import socket
-from dns.rdatatype import NULL
+#comentario
 
 def checksum(source_string):
     sum = 0
