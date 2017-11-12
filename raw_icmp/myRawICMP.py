@@ -1,7 +1,8 @@
 import random
 import struct
 import socket
-#comentario
+import select
+import time
 
 def checksum(source_string):
     sum = 0
@@ -27,7 +28,7 @@ def checksum(source_string):
     return answer
 
 class ICMPRquest(object):
-    def __init__(self, dstAddr, PackCount = 1, timeout = 2):
+    def __init__(self, dstAddr, PackCount = 1, timeout = 1):
         self.dstAddr = dstAddr
         self.PackCount = PackCount
         self.timeout = timeout
@@ -37,16 +38,42 @@ class ICMPRquest(object):
     
     def buildHeader(self, ICMPCode, data):
         header = struct.pack('bbHHh', ICMPCode, 0, 0, self.PacketID, 1)
+        print(data)
         check = checksum(header + data)
         packet = struct.pack('bbHHh', ICMPCode, 0, socket.htons(check), self.PacketID, self.Sequencer)
-        return packet
+        #header = struct.pack('bbHHh', ICMP_ECHO_REQUEST, 0, socket.htons(my_checksum), id, 1)
+
+        return packet + data
+    
+    def ReceivePacketTime(self, PingRcv, timesent):
+        receive, w, z= select.select([PingRcv], [], [], self.timeout)
+        if receive == 0:
+            return
+        data = PingRcv.recv(1024)
+        RcvTime = time.time()
+        data = data[20:28]
+        type, code, checks, id, seq = struct.unpack('bbHHh', data)
+        #Garantizamos que sea el mismo paquete
+        if self.PacketID == id:
+            print("Recibimos el mismo paqute con ID {}".format(self.PacketID))
+            print("Con un tiempo de {}".format(RcvTime - timesent))
+            return RcvTime - timesent
+        else:
+            return 
     
     def SendPacket(self):
         try:
             PacketToSend = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.getprotobyname("icmp"))
         except socket.errno as e:
             print("Error en socket {} ".format(e))
-        
+        realhost = socket.gethostbyname(self.dstAddr)
+        print("realizando ping a {} con la ip {} ".format(self.dstAddr, realhost))
+        #PacketToSend.sendto(self.ICMPRq, (realhost,1))
+        while self.ICMPRq:
+            packet = PacketToSend.sendto(self.ICMPRq, (realhost, 1))
+            self.ICMPRq = self.ICMPRq[packet:]
+        self.ReceivePacketTime(PacketToSend, time.time())
+                    
 
 class ICMPEchoRequest(ICMPRquest):
     ICMP_ECHO_REQUEST = 8
@@ -58,11 +85,13 @@ class ICMPEchoRequest(ICMPRquest):
         
     def test(self):
         print(self.dstAddr)
-    
-    
+        
+    def SendICMP(self):
+        self.buildEchoRequest('A'*42)
+        self.SendPacket()
     
 if __name__ == '__main__':
-    a = ICMPEchoRequest('192.168.1.100')
-    a.test()
-    a.buildEchoRequest('A'*42)
+    ICMPEchoRequest('www.google.com').SendICMP()
+    ICMPEchoRequest('8.8.8.8').SendICMP()
+    
         
