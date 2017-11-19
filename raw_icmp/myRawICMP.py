@@ -3,6 +3,7 @@ import struct
 import socket
 import select
 import time
+from scapy.layers.inet import ICMP
 
 def checksum(source_string):
     sum = 0
@@ -28,38 +29,36 @@ def checksum(source_string):
     return answer
 
 class ICMPRquest(object):
-    def __init__(self, dstAddr, PackCount = 1, timeout = 1):
+    def __init__(self, dstAddr, timeout = 1):
         self.dstAddr = dstAddr
-        self.PackCount = PackCount
         self.timeout = timeout
         self.PacketID  = int((id(timeout) * random.random()) % 65535)
         self.Sequencer = 1
         self.ICMPRq = None
+        self.data = None
     
-    def buildHeader(self, ICMPCode, data):
-        header = struct.pack('bbHHh', ICMPCode, 0, 0, self.PacketID, 1)
-        print(data)
+    def buildHeader(self, ICMPCode, seq, data):
+        self.data = data
+        header = struct.pack('bbHHh', ICMPCode, 0, 0, self.PacketID, seq)
         check = checksum(header + data)
-        packet = struct.pack('bbHHh', ICMPCode, 0, socket.htons(check), self.PacketID, self.Sequencer)
+        packet = struct.pack('bbHHh', ICMPCode, 0, socket.htons(check), self.PacketID, seq)
         #header = struct.pack('bbHHh', ICMP_ECHO_REQUEST, 0, socket.htons(my_checksum), id, 1)
 
         return packet + data
     
     def ReceivePacketTime(self, PingRcv, timesent):
         receive, w, z= select.select([PingRcv], [], [], self.timeout)
-        if receive == 0:
-            return
+        if not receive:
+            return 
         data = PingRcv.recv(1024)
         RcvTime = time.time()
         data = data[20:28]
         type, code, checks, id, seq = struct.unpack('bbHHh', data)
         #Garantizamos que sea el mismo paquete
         if self.PacketID == id:
-            print("Recibimos el mismo paqute con ID {}".format(self.PacketID))
-            print("Con un tiempo de {}".format(RcvTime - timesent))
             return RcvTime - timesent
         else:
-            return 
+            return None
     
     def SendPacket(self):
         try:
@@ -67,12 +66,20 @@ class ICMPRquest(object):
         except socket.errno as e:
             print("Error en socket {} ".format(e))
         realhost = socket.gethostbyname(self.dstAddr)
-        print("realizando ping a {} con la ip {} ".format(self.dstAddr, realhost))
+        #print("realizando ping a {} a  {} ".format(self.dstAddr, realhost))
         #PacketToSend.sendto(self.ICMPRq, (realhost,1))
         while self.ICMPRq:
             packet = PacketToSend.sendto(self.ICMPRq, (realhost, 1))
             self.ICMPRq = self.ICMPRq[packet:]
-        self.ReceivePacketTime(PacketToSend, time.time())
+        r = self.ReceivePacketTime(PacketToSend, time.time())
+        if r == None:
+            timercv = "(timeout!!!)"
+        else:
+            if r < 1:
+                timercv = "(1<s)"
+            else:
+                timercv = "{}".format(round(r,2))
+        print("Reply from: {} time={} data={} Bits".format(self.dstAddr, timercv, len(self.data)))
                     
 
 class ICMPEchoRequest(ICMPRquest):
@@ -80,18 +87,21 @@ class ICMPEchoRequest(ICMPRquest):
     def __init__(self, *args, **kwargs):
         super(ICMPEchoRequest, self).__init__(*args, **kwargs)
 
-    def buildEchoRequest(self, data='A'):
-        self.ICMPRq = self.buildHeader(self.ICMP_ECHO_REQUEST, data)
+    def buildEchoRequest(self, times =1, data='A'*32):
+        self.ICMPRq = self.buildHeader(self.ICMP_ECHO_REQUEST,times, data)
         
     def test(self):
         print(self.dstAddr)
         
-    def SendICMP(self):
-        self.buildEchoRequest('A'*42)
-        self.SendPacket()
+    def SendICMP(self, times=1):
+        print("Realizando ping a {}".format(self.dstAddr))
+        for x in range(1,times+1):
+            self.buildEchoRequest(x)
+            self.SendPacket()
     
 if __name__ == '__main__':
-    ICMPEchoRequest('www.google.com').SendICMP()
-    ICMPEchoRequest('8.8.8.8').SendICMP()
+    ICMPEchoRequest('www.google.com').SendICMP(3)
+    ICMPEchoRequest('192.168.1.254').SendICMP(8)
+    ICMPEchoRequest('1.2.1.3').SendICMP(3)
     
         
