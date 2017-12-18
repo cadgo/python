@@ -16,27 +16,20 @@ w = Canvas(master, width= C_widht, height= C_height )
 w.pack(expand=YES, fill=BOTH )
 padding = C_widht / C_Rows
 
-def callback(event):
-    itemX, itemY = w.coords(item)
-    if event.x <= itemX + 50:
-        print("click en X dentro de la imagen")
-    if event.y <= itemY + 50:
-        print("click en Y dentro de la imagen")
-    #print("click at {} and {} ".format(event.x, event.y))
-    #print("item en las coordenadas {} {}".format(itemX, itemY))
-    #w.create_oval(event.x, event.y, event.x + 50, event.y+50)
-    #w.move(item, event.x, event.y)
 def motion(event):
-    itemX, itemY = w.coords(item)
-    oldObject = copy.deepcopy(item)
-    w.create_image(event.x,event.y, image= img, anchor='nw')
-    oldObject.destroy()
+    w.coords(item, (event.x, event.y))
+
+def nomotion(event):
+    return
     
-def callback2(event):
+    
+def callback(event):
     itemX, itemY = w.coords(item)
     if event.x <= itemX + 50 and event.y <= itemY + 50:
         print("click en X dentro de la imagen")
         w.bind("<B1-Motion>", motion)
+    else:
+        w.bind("<B1-Motion>", nomotion)
         
     
 def DrawBoard(Lines, padding):
@@ -64,7 +57,7 @@ def DrawBoard(Lines, padding):
 DrawBoard(C_Rows, padding)
 img = ImageTk.PhotoImage(Image.open("horse.png").resize((50,50), Image.ANTIALIAS))
 item = w.create_image(0,0, image= img, anchor='nw')
-w.bind("<Button-1>", callback2)
+w.bind("<Button-1>", callback)
 #w.bind("<B1-Motion>", callback)
 #w.pack()
 mainloop()
