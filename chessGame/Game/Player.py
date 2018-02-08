@@ -9,3 +9,6 @@ class Player(object):
     @property    
     def PlayerWin(self, win='no'):
         self.PlayerWin = win
+        
+    def GetPlayerName(self):
+        return self.PlayerName
