@@ -1,18 +1,20 @@
-import Player
+from Player import GamePlayer
+from enum import IntEnum
 
-class TypeOfGame():
-    Type = ['Versus', '1v1', 'Cooperative']
-    Winner = ['Player1', 'Player2','Computer']
-class Game(TypeOfGame):
+class TypeOfGame(IntEnum):
+    VERSUS=1
+    ONEVONE = 2
+    COOP =3
+    COMPVS = 4
+
+class Game(object):
     def __init__(self, GameName):
         self.NameOfTheGame = GameName
         self.players = []
         self.GameVersion()
     
     def AddPlayer(self, PlayerName, Color):
-        self.players.append(Player(PlayerName, Color))
-        #self.players.append(Player("Player 1", "white"))
-        #self.players.append(Player("Player 2", "black"))
+        self.players.append(GamePlayer(PlayerName, Color))
     
     def GameVersion(self, Version=".1"):
         self.GameVersion = Version
@@ -21,24 +23,27 @@ class Game(TypeOfGame):
         self.widht = widht
         self.height = height
         
-    def SetTypeOfGame(self, Type= '1v1'):
-        if Type in self.Type:
-            self.TypeOfGame = Type
-        else:
-            self.TypeOfGame = 'NewKindOfGame'
-            
+    def SetTypeOfGame(self, Type= TypeOfGame.COMPVS):
+        self.GameType = Type
+                   
     def WhoWins(self, PlayerName):
         return self.players[PlayerName].PlayerName
     
     def GameStart(self):
+        print(len(self.players))
         assert self.widht and self.height != 0, "Please Define the ScreenSize"
-        assert self.TypeOfGame != None, "Please define the Type of Games"
+        assert self.GameType != None, "Please define the Type of Games"
+        assert len(self.players) != 0, "At least one player needs to be playing"
         
 
 
 if __name__ == "__main__":
     print('Hola')
     iGame = Game('Chess')
+    iGame.SetScreenSize(100, 100)
+    iGame.SetTypeOfGame(TypeOfGame.COMPVS)
+    #iGame.AddPlayer("carlos", 'white')
+    iGame.GameStart()
     
     
             
