@@ -1,5 +1,6 @@
 import pygame
 from random import randint
+from copy import deepcopy
 
 global_screen_width = 400
 global_screen_heigth = 600
@@ -22,12 +23,11 @@ class TetrisGrid():
     def UpdateFigure(self, movement = 'Down'):
         global FigureFalling
         newposition = []
+        print('movement ', movement)
         cc=None
-        #value = self.CFigure.CurrPosition[self.CFigure.FiGLength-1][0]
-        value=self.CFigure.CurrPosition[-1][0]
-        print("Value ", value)
-        print("Current ", self.CFigure.CurrPosition)
+        #value = self.CFigure.CurrPosition[self.C   Figure.FiGLength-1][0])
         if movement == 'Down':
+            value = self.CFigure.CurrPosition[-1][0]
             if value < self.Matrix_Hiegth-1:
                 for ex in range(len(self.CFigure.CurrPosition)):
                     #print("ex", ex, "figure", self.CFigure.CurrPosition)
@@ -47,6 +47,34 @@ class TetrisGrid():
             else:
                 print("Deja de Caer")
                 FigureFalling = False
+        if movement == 'left':
+            print("movemos a la izq")
+            print("Current figure ", self.CFigure.CurrPosition)
+            for ex in range(len(self.CFigure.CurrPosition)):
+                # print("ex", ex, "figure", self.CFigure.CurrPosition)
+                self.grid[self.CFigure.CurrPosition[ex][0]][self.CFigure.CurrPosition[ex][1]] = 0
+                # Una vez que se borra la figura anterior se usa current position mas 1 para actualizar la figura
+            for ex in range(len(self.CFigure.CurrPosition)):
+                if self.grid[self.CFigure.CurrPosition[ex][0]][self.CFigure.CurrPosition[ex][1]-1] != 1:
+                    newposition.append([self.CFigure.CurrPosition[ex][0], self.CFigure.CurrPosition[ex][1]-1])
+            print("newposition ", newposition)
+            self.CFigure.CurrPosition = newposition
+            for ex in range(len(self.CFigure.CurrPosition)):
+                self.grid[self.CFigure.CurrPosition[ex][0]][self.CFigure.CurrPosition[ex][1]] = 1
+        if movement == 'right':
+            print("Movemos a la derecha")
+            print("Current figure ", self.CFigure.CurrPosition)
+            for ex in range(len(self.CFigure.CurrPosition)):
+                # print("ex", ex, "figure", self.CFigure.CurrPosition)
+                self.grid[self.CFigure.CurrPosition[ex][0]][self.CFigure.CurrPosition[ex][1]] = 0
+                # Una vez que se borra la figura anterior se usa current position mas 1 para actualizar la figura
+            for ex in range(len(self.CFigure.CurrPosition)):
+                if self.grid[self.CFigure.CurrPosition[ex][0]][self.CFigure.CurrPosition[ex][1]+1] != 1:
+                    newposition.append([self.CFigure.CurrPosition[ex][0], self.CFigure.CurrPosition[ex][1]+1])
+            print("newposition ", newposition)
+            self.CFigure.CurrPosition = newposition
+            for ex in range(len(self.CFigure.CurrPosition)):
+                self.grid[self.CFigure.CurrPosition[ex][0]][self.CFigure.CurrPosition[ex][1]] = 1
 
     def __FigChooser(self):
         cf = {0: Square(), 1: ZBar(), 2: Bar(), 3: LBar()}
@@ -110,8 +138,14 @@ class Figure():
     def TurnLeft(self):
         """Turn Left"""
 
-    def TurnUp(self):
+
+    def TurnRigth(self):
         """Turn UP"""
+        piece_copy = deepcopy(self.CurrPosition)
+        reverse_piece = piece_copy[::-1]
+        print(reverse_piece)
+        self.CurrPosition = reverse_piece
+
 
 class Square(Figure):
     FigureName = "square"
@@ -120,6 +154,12 @@ class Square(Figure):
         self.MFigure = [[1,1],
                         [1,1]]
         self.FiGLength = len(self.MFigure)
+
+    def TurnLeft(self):
+        return
+
+    def TurnRigth(self):
+        return
 
 class ZBar(Figure):
     FigureName = "zbar"
@@ -155,19 +195,39 @@ if __name__ == '__main__':
     win = pygame.display.set_mode((global_screen_width, global_screen_heigth))
     Grid = TetrisGrid(win,TetrisWidht, TetrisHeight)
     GameRuning = True
+    move = "down"
 
     while(GameRuning):
         win.fill((0, 0, 0))
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 GameRuning = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_a:
+                    print("presionamos a")
+                    move = 'left'
+                if event.key == pygame.K_d:
+                    move = 'right'
+                    print("presionamos d")
+                if event.key == pygame.K_w:
+                    print('rotate')
+                    print(Grid.CFigure.CurrPosition)
+                    print(Grid.CFigure.TurnRigth())
         if FigureFalling == False:
             Grid.StartFigure()
             FigureFalling = True
         elif FigureFalling == True:
             #La figura cae hay que moverla a abajo
             pygame.time.delay(1000)
-            Grid.UpdateFigure()
+            if move == 'left':
+                Grid.UpdateFigure(move)
+                move = "down"
+            elif move == 'right':
+                Grid.UpdateFigure(move)
+                move = "down"
+            elif move == 'down':
+                Grid.UpdateFigure()
+                move='down'
         Grid.UpdateGrid(global_screen_width, global_screen_heigth)
         pygame.display.update()
 
