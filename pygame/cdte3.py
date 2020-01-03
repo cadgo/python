@@ -25,6 +25,7 @@ class TetrisGrid():
         newposition = []
         print('movement ', movement)
         cc=None
+        print(self.CFigure.CurrPosition)
         #value = self.CFigure.CurrPosition[self.C   Figure.FiGLength-1][0])
         if movement == 'Down':
             value = self.CFigure.CurrPosition[-1][0]
@@ -49,32 +50,45 @@ class TetrisGrid():
                 FigureFalling = False
         if movement == 'left':
             print("movemos a la izq")
-            print("Current figure ", self.CFigure.CurrPosition)
-            for ex in range(len(self.CFigure.CurrPosition)):
-                # print("ex", ex, "figure", self.CFigure.CurrPosition)
-                self.grid[self.CFigure.CurrPosition[ex][0]][self.CFigure.CurrPosition[ex][1]] = 0
-                # Una vez que se borra la figura anterior se usa current position mas 1 para actualizar la figura
-            for ex in range(len(self.CFigure.CurrPosition)):
-                if self.grid[self.CFigure.CurrPosition[ex][0]][self.CFigure.CurrPosition[ex][1]-1] != 1:
-                    newposition.append([self.CFigure.CurrPosition[ex][0], self.CFigure.CurrPosition[ex][1]-1])
-            print("newposition ", newposition)
-            self.CFigure.CurrPosition = newposition
-            for ex in range(len(self.CFigure.CurrPosition)):
-                self.grid[self.CFigure.CurrPosition[ex][0]][self.CFigure.CurrPosition[ex][1]] = 1
+            #print("Current figure ", self.CFigure.CurrPosition)
+            s = min(self.CFigure.CurrPosition)
+            print("@@@SSSSS@@@ ", s)
+            if s[1] > 0:
+                for ex in range(len(self.CFigure.CurrPosition)):
+                    # print("ex", ex, "figure", self.CFigure.CurrPosition)
+                    self.grid[self.CFigure.CurrPosition[ex][0]][self.CFigure.CurrPosition[ex][1]] = 0
+                    # Una vez que se borra la figura anterior se usa current position mas 1 para actualizar la figura
+                for ex in range(len(self.CFigure.CurrPosition)):
+                    if self.grid[self.CFigure.CurrPosition[ex][0]][self.CFigure.CurrPosition[ex][1]-1] != 1:
+                        newposition.append([self.CFigure.CurrPosition[ex][0], self.CFigure.CurrPosition[ex][1]-1])
+                    else:
+                        newposition = self.CFigure.CurrPosition
+                        break
+                print("newposition ", newposition)
+                self.CFigure.CurrPosition = newposition
+                for ex in range(len(self.CFigure.CurrPosition)):
+                    self.grid[self.CFigure.CurrPosition[ex][0]][self.CFigure.CurrPosition[ex][1]] = 1
         if movement == 'right':
             print("Movemos a la derecha")
             print("Current figure ", self.CFigure.CurrPosition)
-            for ex in range(len(self.CFigure.CurrPosition)):
-                # print("ex", ex, "figure", self.CFigure.CurrPosition)
-                self.grid[self.CFigure.CurrPosition[ex][0]][self.CFigure.CurrPosition[ex][1]] = 0
-                # Una vez que se borra la figura anterior se usa current position mas 1 para actualizar la figura
-            for ex in range(len(self.CFigure.CurrPosition)):
-                if self.grid[self.CFigure.CurrPosition[ex][0]][self.CFigure.CurrPosition[ex][1]+1] != 1:
-                    newposition.append([self.CFigure.CurrPosition[ex][0], self.CFigure.CurrPosition[ex][1]+1])
-            print("newposition ", newposition)
-            self.CFigure.CurrPosition = newposition
-            for ex in range(len(self.CFigure.CurrPosition)):
-                self.grid[self.CFigure.CurrPosition[ex][0]][self.CFigure.CurrPosition[ex][1]] = 1
+            s = max(self.CFigure.CurrPosition)
+            print("@@@SSSSS@@@ ", s[1])
+            if s[1] < TetrisWidht-1:
+                for ex in range(len(self.CFigure.CurrPosition)):
+                    # print("ex", ex, "figure", self.CFigure.CurrPosition)
+                    self.grid[self.CFigure.CurrPosition[ex][0]][self.CFigure.CurrPosition[ex][1]] = 0
+                    # Una vez que se borra la figura anterior se usa current position mas 1 para actualizar la figura
+                for ex in range(len(self.CFigure.CurrPosition)):
+                    if self.grid[self.CFigure.CurrPosition[ex][0]][self.CFigure.CurrPosition[ex][1]+1] != 1:
+                        newposition.append([self.CFigure.CurrPosition[ex][0], self.CFigure.CurrPosition[ex][1]+1])
+                    else:
+                        newposition = self.CFigure.CurrPosition
+                        break
+                print("newposition ", newposition)
+                self.CFigure.CurrPosition = newposition
+                for ex in range(len(self.CFigure.CurrPosition)):
+                    self.grid[self.CFigure.CurrPosition[ex][0]][self.CFigure.CurrPosition[ex][1]] = 1
+        print("GRID %%%% ", self.grid)
 
     def __FigChooser(self):
         cf = {0: Square(), 1: ZBar(), 2: Bar(), 3: LBar()}
