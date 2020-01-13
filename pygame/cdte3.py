@@ -20,12 +20,12 @@ class TetrisGrid():
     def ResetGrid(self, fill):
         self.grid = [[fill for x in range(self.Matrix_Hiegth)] for y in range(self.Matrix_Hiegth)]
 
-    def UpdateFigure(self, movement = 'Down'):
+    def UpdateFigure(self, movement = 'Down', newmatrix=None):
         global FigureFalling
         newposition = []
-        print('movement ', movement)
+        #print('movement ', movement)
         cc=None
-        print(self.CFigure.CurrPosition)
+        #print(self.CFigure.CurrPosition)
         #value = self.CFigure.CurrPosition[self.C   Figure.FiGLength-1][0])
         if movement == 'Down':
             value = self.CFigure.CurrPosition[-1][0]
@@ -46,7 +46,6 @@ class TetrisGrid():
                     self.grid[self.CFigure.CurrPosition[ex][0]][self.CFigure.CurrPosition[ex][1]] = 1
                 #print("New Position", newposition)
             else:
-                print("Deja de Caer")
                 FigureFalling = False
         if movement == 'left':
             print("movemos a la izq")
@@ -69,15 +68,10 @@ class TetrisGrid():
                 for ex in range(len(self.CFigure.CurrPosition)):
                     self.grid[self.CFigure.CurrPosition[ex][0]][self.CFigure.CurrPosition[ex][1]] = 1
         if movement == 'right':
-            print("Movemos a la derecha")
-            print("Current figure ", self.CFigure.CurrPosition)
             s = max(self.CFigure.CurrPosition)
-            print("@@@SSSSS@@@ ", s[1])
             if s[1] < TetrisWidht-1:
                 for ex in range(len(self.CFigure.CurrPosition)):
-                    # print("ex", ex, "figure", self.CFigure.CurrPosition)
                     self.grid[self.CFigure.CurrPosition[ex][0]][self.CFigure.CurrPosition[ex][1]] = 0
-                    # Una vez que se borra la figura anterior se usa current position mas 1 para actualizar la figura
                 for ex in range(len(self.CFigure.CurrPosition)):
                     if self.grid[self.CFigure.CurrPosition[ex][0]][self.CFigure.CurrPosition[ex][1]+1] != 1:
                         newposition.append([self.CFigure.CurrPosition[ex][0], self.CFigure.CurrPosition[ex][1]+1])
@@ -88,7 +82,11 @@ class TetrisGrid():
                 self.CFigure.CurrPosition = newposition
                 for ex in range(len(self.CFigure.CurrPosition)):
                     self.grid[self.CFigure.CurrPosition[ex][0]][self.CFigure.CurrPosition[ex][1]] = 1
-        print("GRID %%%% ", self.grid)
+        if movement == 'rleft':
+            print("rotamos a la izq")
+            for ex in range(len(self.CFigure.CurrPosition)):
+                self.grid[self.CFigure.CurrPosition[ex][0]][self.CFigure.CurrPosition[ex][1]] = 0
+            self.CFigure.CurrPosition=nm
 
     def __FigChooser(self):
         cf = {0: Square(), 1: ZBar(), 2: Bar(), 3: LBar()}
@@ -142,6 +140,8 @@ class TetrisGrid():
 class Figure():
     FigureName = None
     CurrPosition = []
+    pivot = None
+
     def __init__(self):
         self.MFigure = [] #Una matriz bidemensional con la figura
         self.FiGLength = len(self.MFigure)
@@ -151,6 +151,19 @@ class Figure():
 
     def TurnLeft(self):
         """Turn Left"""
+        print("Current position ", self.CurrPosition)
+        p = self.CurrPosition[self.pivot]
+        print("Obtenemos pivote y[{}] x[{}]".format(p[0], p[1]))
+        rm = []
+        for f in range(len(self.CurrPosition)):
+            if f != self.pivot:
+                x2 = self.CurrPosition[f][0] + p[1] - p[0]
+                y2 = p[1] + p[0] - self.CurrPosition[f][1]
+                rm.append([y2,x2])
+            else:
+                rm.append(self.CurrPosition[f])
+        print("RM", rm)
+        return rm
 
 
     def TurnRigth(self):
@@ -163,6 +176,7 @@ class Figure():
 
 class Square(Figure):
     FigureName = "square"
+    pivot = 0
 
     def __init__(self):
         self.MFigure = [[1,1],
@@ -177,6 +191,7 @@ class Square(Figure):
 
 class ZBar(Figure):
     FigureName = "zbar"
+    pivot = 1
 
     def __init__(self):
         self.MFigure = [[1,0],
@@ -186,6 +201,7 @@ class ZBar(Figure):
 
 class Bar(Figure):
     FigureName = "bar"
+    pivot = 1
 
     def __init__(self):
         self.MFigure = [[1],
@@ -196,6 +212,7 @@ class Bar(Figure):
 
 class LBar(Figure):
     FigureName = "Lbar"
+    pivot = 1
 
     def __init__(self):
         self.MFigure = [[1],
@@ -224,15 +241,14 @@ if __name__ == '__main__':
                     move = 'right'
                     print("presionamos d")
                 if event.key == pygame.K_w:
-                    print('rotate')
-                    print(Grid.CFigure.CurrPosition)
-                    print(Grid.CFigure.TurnRigth())
+                    nm = Grid.CFigure.TurnLeft()
+                    move = 'rleft'
         if FigureFalling == False:
             Grid.StartFigure()
             FigureFalling = True
         elif FigureFalling == True:
             #La figura cae hay que moverla a abajo
-            pygame.time.delay(1000)
+            pygame.time.delay(800)
             if move == 'left':
                 Grid.UpdateFigure(move)
                 move = "down"
@@ -241,6 +257,9 @@ if __name__ == '__main__':
                 move = "down"
             elif move == 'down':
                 Grid.UpdateFigure()
+                move='down'
+            elif move == 'rleft':
+                Grid.UpdateFigure(move,nm)
                 move='down'
         Grid.UpdateGrid(global_screen_width, global_screen_heigth)
         pygame.display.update()
