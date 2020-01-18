@@ -82,11 +82,19 @@ class TetrisGrid():
                 self.CFigure.CurrPosition = newposition
                 for ex in range(len(self.CFigure.CurrPosition)):
                     self.grid[self.CFigure.CurrPosition[ex][0]][self.CFigure.CurrPosition[ex][1]] = 1
-        if movement == 'rleft':
+        if movement == 'rleft' and nm != None:
+            s0=min(nm)
+            s1=max(nm)
             print("rotamos a la izq")
-            for ex in range(len(self.CFigure.CurrPosition)):
-                self.grid[self.CFigure.CurrPosition[ex][0]][self.CFigure.CurrPosition[ex][1]] = 0
-            self.CFigure.CurrPosition=nm
+            n= None
+            if s1[1] < TetrisWidht or s0[1] > 0:
+                for ex in range(len(self.CFigure.CurrPosition)):
+                    self.grid[self.CFigure.CurrPosition[ex][0]][self.CFigure.CurrPosition[ex][1]] = 0
+                for ex in range(len(nm)):
+                    if self.grid[nm[ex][0]][nm[ex][1]] == 1:
+                        n = 1
+                if n != 1:
+                    self.CFigure.CurrPosition=nm
 
     def __FigChooser(self):
         cf = {0: Square(), 1: ZBar(), 2: Bar(), 3: LBar()}
@@ -248,7 +256,7 @@ if __name__ == '__main__':
             FigureFalling = True
         elif FigureFalling == True:
             #La figura cae hay que moverla a abajo
-            pygame.time.delay(800)
+            pygame.time.delay(600)
             if move == 'left':
                 Grid.UpdateFigure(move)
                 move = "down"
