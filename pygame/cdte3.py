@@ -83,11 +83,16 @@ class TetrisGrid():
                 for ex in range(len(self.CFigure.CurrPosition)):
                     self.grid[self.CFigure.CurrPosition[ex][0]][self.CFigure.CurrPosition[ex][1]] = 1
         if movement == 'rleft' and nm != None:
-            s0=min(nm)
-            s1=max(nm)
             print("rotamos a la izq")
-            n= None
-            if s1[1] < TetrisWidht or s0[1] > 0:
+            n= 0
+            v = 0
+            print("NM", nm)
+            for ex in range(len(nm)):
+                print(nm[ex][0],nm[ex][1])
+                if nm[ex][1] < 0 or nm[ex][1] > TetrisWidht-1:
+                    print("No podemos rotar")
+                    v = 1
+            if v != 1:
                 for ex in range(len(self.CFigure.CurrPosition)):
                     self.grid[self.CFigure.CurrPosition[ex][0]][self.CFigure.CurrPosition[ex][1]] = 0
                 for ex in range(len(nm)):
