@@ -23,36 +23,46 @@ class TetrisGrid():
     def UpdateFigure(self, movement = 'Down', newmatrix=None):
         global FigureFalling
         newposition = []
-        #print('movement ', movement)
         cc=None
-        #print(self.CFigure.CurrPosition)
-        #value = self.CFigure.CurrPosition[self.C   Figure.FiGLength-1][0])
+        v = 0
         if movement == 'Down':
-            value = self.CFigure.CurrPosition[-1][0]
-            if value < self.Matrix_Hiegth-1:
-                for ex in range(len(self.CFigure.CurrPosition)):
-                    #print("ex", ex, "figure", self.CFigure.CurrPosition)
-                    self.grid[self.CFigure.CurrPosition[ex][0]][self.CFigure.CurrPosition[ex][1]] = 0
-                    #Una vez que se borra la figura anterior se usa current position mas 1 para actualizar la figura
-                for ex in range(len(self.CFigure.CurrPosition)):
-                    if self.grid[self.CFigure.CurrPosition[ex][0]+1][self.CFigure.CurrPosition[ex][1]] != 1:
-                        newposition.append([self.CFigure.CurrPosition[ex][0]+1,self.CFigure.CurrPosition[ex][1]])
-                    else:   cc = 1
-                if cc != 1:
-                    self.CFigure.CurrPosition = newposition
+            for ex in range(len(self.CFigure.CurrPosition)):
+                if self.CFigure.CurrPosition[ex][0] >= TetrisHeight - 1:
+                    v = 1
+                    FigureFalling = False
+                    break
+            if v != 1:
+                value = self.CFigure.CurrPosition[-1][0]
+                if value < self.Matrix_Hiegth-1:
+                    for ex in range(len(self.CFigure.CurrPosition)):
+                        #print("ex", ex, "figure", self.CFigure.CurrPosition)
+                        self.grid[self.CFigure.CurrPosition[ex][0]][self.CFigure.CurrPosition[ex][1]] = 0
+                        #Una vez que se borra la figura anterior se usa current position mas 1 para actualizar la figura
+                    for ex in range(len(self.CFigure.CurrPosition)):
+                        if self.grid[self.CFigure.CurrPosition[ex][0]+1][self.CFigure.CurrPosition[ex][1]] != 1:
+                            newposition.append([self.CFigure.CurrPosition[ex][0]+1,self.CFigure.CurrPosition[ex][1]])
+                        else:   cc = 1
+                    if cc != 1:
+                        self.CFigure.CurrPosition = newposition
+                    else:
+                        FigureFalling = False
+                    for ex in range(len(self.CFigure.CurrPosition)):
+                        self.grid[self.CFigure.CurrPosition[ex][0]][self.CFigure.CurrPosition[ex][1]] = 1
+                    #print("New Position", newposition)
                 else:
                     FigureFalling = False
-                for ex in range(len(self.CFigure.CurrPosition)):
-                    self.grid[self.CFigure.CurrPosition[ex][0]][self.CFigure.CurrPosition[ex][1]] = 1
-                #print("New Position", newposition)
-            else:
-                FigureFalling = False
         if movement == 'left':
-            print("movemos a la izq")
-            #print("Current figure ", self.CFigure.CurrPosition)
-            s = min(self.CFigure.CurrPosition)
-            print("@@@SSSSS@@@ ", s)
-            if s[1] > 0:
+            v = 0
+            # print("movemos a la izq")
+            # #print("Current figure ", self.CFigure.CurrPosition)
+            # s = min(self.CFigure.CurrPosition)
+            # print("@@@SSSSS@@@ ", s)
+            # if s[1] > 0:
+            for ex in range(len(self.CFigure.CurrPosition)):
+                if self.CFigure.CurrPosition[ex][1] <= 0:
+                    v = 1
+                    break
+            if v != 1:
                 for ex in range(len(self.CFigure.CurrPosition)):
                     # print("ex", ex, "figure", self.CFigure.CurrPosition)
                     self.grid[self.CFigure.CurrPosition[ex][0]][self.CFigure.CurrPosition[ex][1]] = 0
@@ -68,8 +78,14 @@ class TetrisGrid():
                 for ex in range(len(self.CFigure.CurrPosition)):
                     self.grid[self.CFigure.CurrPosition[ex][0]][self.CFigure.CurrPosition[ex][1]] = 1
         if movement == 'right':
-            s = max(self.CFigure.CurrPosition)
-            if s[1] < TetrisWidht-1:
+            # s = max(self.CFigure.CurrPosition)
+            # if s[1] < TetrisWidht-1:
+            v=0
+            for ex in range(len(self.CFigure.CurrPosition)):
+                if self.CFigure.CurrPosition[ex][1] >= TetrisWidht-1:
+                    v = 1
+                    break
+            if v != 1:
                 for ex in range(len(self.CFigure.CurrPosition)):
                     self.grid[self.CFigure.CurrPosition[ex][0]][self.CFigure.CurrPosition[ex][1]] = 0
                 for ex in range(len(self.CFigure.CurrPosition)):
@@ -83,10 +99,8 @@ class TetrisGrid():
                 for ex in range(len(self.CFigure.CurrPosition)):
                     self.grid[self.CFigure.CurrPosition[ex][0]][self.CFigure.CurrPosition[ex][1]] = 1
         if movement == 'rleft' and nm != None:
-            print("rotamos a la izq")
             n= 0
             v = 0
-            print("NM", nm)
             for ex in range(len(nm)):
                 print(nm[ex][0],nm[ex][1])
                 if nm[ex][1] < 0 or nm[ex][1] > TetrisWidht-1:
@@ -135,14 +149,13 @@ class TetrisGrid():
         paddingheight = screen_heigth / self.Matrix_Hiegth
         for b in range(self.Matrix_Width):
             for a in range(self.Matrix_Hiegth):
-                if self.grid[a][b] == 0:
-                    pygame.draw.rect(self.win, (255, 255, 255), (x, y, paddingwith, paddingheight), 3)
+                if self.grid[a][b] == 0 or self.CFigure == None:
+                    pygame.draw.rect(self.win, (255, 255, 255), (x, y, paddingwith, paddingheight), 1)
                 else:
-                    pygame.draw.rect(self.win, (255, 255, 0), (x, y, paddingwith, paddingheight))
+                    pygame.draw.rect(self.win, (178, 186, 187), (x, y, paddingwith, paddingheight))
                 y = y + paddingheight
             x = x + paddingwith
             y = 0
-
 
     def GetTetrisWidth(self):
         return self.Matrix_Width
@@ -150,10 +163,26 @@ class TetrisGrid():
     def GetTetrisHeight(self):
         return self.Matrix_Hiegth
 
+    def ScoringLines(self):
+        print("Scoring lines")
+        total = 0
+        for i in range(self.Matrix_Hiegth-1, -1, -1):
+            for a in range(self.Matrix_Width):
+                if self.grid[i][a] == 1:
+                    total += 1
+                    print("Agregmos a totals")
+                else:
+                    total = 0
+                    break
+            print("@@@ Total ###", total)
+            if total == self.Matrix_Width:
+                print("BORRAMOS BORRAMOS")
+
 class Figure():
     FigureName = None
     CurrPosition = []
     pivot = None
+    Color=None
 
     def __init__(self):
         self.MFigure = [] #Una matriz bidemensional con la figura
@@ -190,6 +219,7 @@ class Figure():
 class Square(Figure):
     FigureName = "square"
     pivot = 0
+    Color = (231, 76, 60)
 
     def __init__(self):
         self.MFigure = [[1,1],
@@ -205,6 +235,7 @@ class Square(Figure):
 class ZBar(Figure):
     FigureName = "zbar"
     pivot = 1
+    Color = ( 211, 84, 0)
 
     def __init__(self):
         self.MFigure = [[1,0],
@@ -215,6 +246,7 @@ class ZBar(Figure):
 class Bar(Figure):
     FigureName = "bar"
     pivot = 1
+    Color =  ( 46, 134, 193 )
 
     def __init__(self):
         self.MFigure = [[1],
@@ -226,6 +258,7 @@ class Bar(Figure):
 class LBar(Figure):
     FigureName = "Lbar"
     pivot = 1
+    Color = (93, 109, 126)
 
     def __init__(self):
         self.MFigure = [[1],
@@ -258,6 +291,8 @@ if __name__ == '__main__':
                     move = 'rleft'
         if FigureFalling == False:
             Grid.StartFigure()
+            #PONER LA VALIDACION DE LINEAS COMPLETAS
+            Grid.ScoringLines()
             FigureFalling = True
         elif FigureFalling == True:
             #La figura cae hay que moverla a abajo
@@ -276,5 +311,5 @@ if __name__ == '__main__':
                 move='down'
         Grid.UpdateGrid(global_screen_width, global_screen_heigth)
         pygame.display.update()
-
+    print(Grid.grid)
     pygame.quit()
