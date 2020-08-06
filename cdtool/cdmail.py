@@ -23,7 +23,6 @@ def mail_throttle(func):
             print("Not mail to send, time as not expired")
     return wrapper
 
-@mail_throttle
 def SendMailAlertGmail(sender, receivers, sender_password,subject,mailbody):
     message = MIMEMultipart()
     message['Form'] = sender
