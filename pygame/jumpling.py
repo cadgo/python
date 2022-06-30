@@ -4,10 +4,10 @@ pygame.init()
 clock = pygame.time.Clock()
 screen_width,screen_high = 800,800
 floor_position = screen_high - 200
-
+faling=False
 main_char_size=50
-main_char_speed=10
-
+main_char_speed=15
+isJumping=False
 main_char_size = 50
 main_char = pygame.Rect(screen_width/2,\
         floor_position-main_char_size,\
@@ -22,9 +22,20 @@ while isRunning:
             if (event.key == pygame.K_LEFT or event.key == ord('a')) and main_char.x > 0:
                 print("moviendo izq x", main_char.x)
                 main_char.x -= main_char_speed
-            if (event.key == pygame.K_RIGHT or event.key == ord('b')) and main_char.x+main_char_size < screen_width:
+            if (event.key == pygame.K_RIGHT or event.key == ord('d')) and main_char.x+main_char_size < screen_width:
                 print("Moviendo derecha", main_char.x)
                 main_char.x += main_char_speed
+            if event.key == pygame.K_SPACE:
+                isJumping=True
+
+    if isJumping:
+        if faling == False:
+            main_char.y -= main_char_speed
+            print(main_char.y)
+            if main_char.y <= 100: faling=True; print("Faling")
+        else:
+            main_char.y += main_char_speed
+            if main_char.y >= floor_position: faling=False; isJumping=False; main_char.y = floor_position - main_char_size
     screen.fill((0,0,0))
     pygame.draw.rect(screen,(255,255,255),main_char)
     pygame.draw.line(screen, (64,64,64),
