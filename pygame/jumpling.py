@@ -13,6 +13,8 @@ main_char = pygame.Rect(screen_width/2,\
         floor_position-main_char_size,\
         main_char_size,main_char_size)
 screen = pygame.display.set_mode((screen_width, screen_high))
+surf = pygame.Surface((100,100))
+surf.fill('Red')
 isRunning=True
 while isRunning:
     for event in pygame.event.get():
@@ -40,5 +42,6 @@ while isRunning:
     pygame.draw.rect(screen,(255,255,255),main_char)
     pygame.draw.line(screen, (64,64,64),
             (0,floor_position),(screen_width,floor_position),10)
+    screen.blit(surf, (0,0))
     pygame.display.flip()
     clock.tick(60)
