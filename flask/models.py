@@ -1,0 +1,1 @@
+DATABASE="camera.db"
