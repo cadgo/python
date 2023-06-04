@@ -16,6 +16,7 @@ class Fire:
         self.app = app
         self.palette = self.get_palette()
         self.fire_array=self.get_fire_array()
+        print(len(self.palette))
         print(self.fire_array)
 
 
@@ -41,16 +42,16 @@ class Fire:
     
     def update(self):
         self.do_fire()
-        print(self.fire_array)
+        #print(self.fire_array)
 
     def draw_square(self):
         pygame.draw.rect(self.app.screen, COLORS[2], (10,10, PIXEL_SIZE,\
                                                       PIXEL_SIZE))
     def get_fire_array(self):
         fire = [[0 for x in range(FIRE_WIDTH)] for i in range(FIRE_HEIGHT)]
-        print(len(self.palette)-1)
         for i in range(FIRE_WIDTH):
             fire[FIRE_HEIGHT-1][i]=len(self.palette)-1
+            #fire[FIRE_HEIGHT-1][i]=1
         return fire
 
     def init_fire1(self):
