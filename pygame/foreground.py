@@ -2,7 +2,7 @@ import pygame
 import sys
 FPS=30
 WIDTH, HEIGHT = 1600, 1200
-PIC_FOLDER='/home/carlos/git/python/pygame/craftpix-net-612081-free-scrolling-city-backgrounds-pixel-art/1back/1/Night/'
+PIC_FOLDER='/home/carlos/Downloads/backs/1/Night/'
 BACKGROUNDS=[PIC_FOLDER+'2.png', PIC_FOLDER+'3.png', PIC_FOLDER+'5.png']
 
 class bc_picture():

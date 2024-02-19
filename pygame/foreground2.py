@@ -54,21 +54,31 @@ class App():
                 self.game_screen.blit(pic.picture, rect)
                 prev = rect
 
+    def prerenderback(self):
+        self.start_buildings()
+    
     def draw(self):
         #self.game_screen.blit(self.background,(0,0))
-        self.start_buildings()
         pygame.display.flip()
 
     def run(self):
+        g_counter=0
+        generalupdate=False
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
                 if event.type == pygame.KEYDOWN:
-                    print('key down')
+                    if event.key == pygame.K_d:
+                        generalupdate=True
+                        print("d")
+                if generalupdate or not g_counter:
+                    self.prerenderback()
                 self.update()
                 self.draw()
+                generalupdate=False
+                g_counter+=1
 
 if __name__ == "__main__":
     game = App()
