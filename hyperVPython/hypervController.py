@@ -10,11 +10,11 @@ try:
 except KeyError as e:
     raise KeyError(f"Please provde a valid SSHKEY")
 
+StatusOutput = {"Status": "Ok", "Command": "", "ReturnCommand": ""}
+
 app = Flask(__name__)
 
 def ConnectSSH(command):
-    StatusOutPut = {"Status": "OK", "Execution": command}
-
     con = paramiko.SSHClient()
     con.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     try:
@@ -29,14 +29,17 @@ def ConnectSSH(command):
         raise Exception(f"Some error happend, connecting to host")
     try:
         cexec = json.loads(out)
-    except json.decoder.JSONDecodeError:
-        errjson  = {
-        "Status": "Error",
-        "Execution": f"{command}"
-        }
-        ferrjson = json.dumps(errjson)
+    except json.decoder.JSONDecodeError as e:
+        print(e)
+        StatusOutput["Status"] = "Error"
+        StatusOutput["Command"] = command
+        StatusOutput["ReturnCommand"] = ""
+        ferrjson = json.dumps(StatusOutput)
         return json.loads(ferrjson)
-    return cexec
+    StatusOutput["Status"] = "Ok"
+    StatusOutput["Command"] = command
+    StatusOutput["ReturnCommand"] = cexec
+    return StatusOutput
 
 @app.route('/getvm', methods=['GET'])
 def getvm():
@@ -57,11 +60,7 @@ def startvm(vmname):
     command = f'powershell -Command "Start-vm {vmname} -Passthru -ErrorAction Stop | ConvertTo-Json"'
     print(command)
     commandExec = ConnectSSH(command)
-    print(commandExec)
-    return jsonify({
-            "status": "success",
-            "vm": vmname
-        }), 200
+    return jsonify(commandExec), 200
 
 
 if __name__=="__main__":
