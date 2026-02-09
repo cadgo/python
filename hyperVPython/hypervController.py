@@ -41,7 +41,7 @@ def ConnectSSH(command):
     StatusOutput["ReturnCommand"] = cexec
     return StatusOutput
 
-@app.route('/getvm', methods=['GET'])
+@app.route('/getvms', methods=['GET'])
 def getvm():
     command =  (
     'powershell -Command "@(Get-VM | '
@@ -50,16 +50,17 @@ def getvm():
 )
     commandExec = ConnectSSH(command)
     print(f"Connection result {commandExec}")
-    return jsonify({
-            "status": "success",
-            "vms": commandExec
-        }), 200
+    if commandExec["Status"] == "Error":
+        return jsonify(commandExec), 400
+    return jsonify(commandExec), 200
 
 @app.route('/startvm/<vmname>', methods=['GET'])
 def startvm(vmname):
     command = f'powershell -Command "Start-vm {vmname} -Passthru -ErrorAction Stop | ConvertTo-Json"'
     print(command)
     commandExec = ConnectSSH(command)
+    if commandExec["Status"] == "Error":
+        return jsonify(commandExec), 400
     return jsonify(commandExec), 200
 
 
